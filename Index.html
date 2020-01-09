@@ -1,0 +1,231 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Application Web Service Testing Page</title>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style type="text/css" media="screen">
+        .container {
+            width: 500px;
+            clear: both;
+        }
+
+            .container input {
+                width: 100%;
+                clear: both;
+            }
+    </style>
+    <script type="text/javascript">
+        function GetUasToken() {
+            document.getElementById("GetUasTokenLoader").className = "fa fa-spinner fa-spin";
+            var uasUrl = document.getElementById('UasUrl').value;
+            var environmentId = document.getElementById('EnvironmentId').value;
+            var login = document.getElementById('Login').value;
+            var password = document.getElementById('Password').value;
+            $.ajax({
+                url: uasUrl + "/connect/token",
+                type: "POST",
+                data: {
+                    grant_type: "password",
+                    scope: "hopex openid read write",
+                    username: login,
+                    password: password,
+                    client_id: "HopexAPI",
+                    client_secret: "secret",
+                    environmentId: environmentId
+                },
+                success: function (uasTokenResponse) {
+                    document.getElementById('UasToken').innerText = uasTokenResponse.access_token;
+                    document.getElementById("GetUasTokenLoader").className = "";
+                },
+                error: function () {
+                    alert("Sorry could not proceed for UasToken");
+                    document.getElementById("GetUasTokenLoader").className = "";
+                }
+            });
+        }
+        function SanityCheck() {
+            document.getElementById("SanityCheckLoader").className = "fa fa-spinner fa-spin";
+            var myServiceUrl = document.getElementById('myServiceUrl').value;
+            var uasToken = document.getElementById('UasToken').innerText;
+            var environmentId = document.getElementById('EnvironmentId').value;
+            var repositoryId = document.getElementById('RepositoryId').value;
+            var profileId = document.getElementById('ProfileId').value;
+            var dataLanguageId = document.getElementById('DataLanguageId').value;
+            var guiLanguageId = document.getElementById('GuiLanguageId').value;
+            var firstName = document.getElementById('FirstName').value;
+            var lastName = document.getElementById('LastName').value;
+            $.ajax({
+                url: myServiceUrl + "/api/test/sanitycheck",
+                type: "POST",
+                beforeSend: function (request) {
+                    request.setRequestHeader("Authorization", "Bearer " + uasToken);
+                    request.setRequestHeader("X-HopexContext",
+                        '{' +
+                        '"EnvironmentId": "' + environmentId + '", ' +
+                        '"RepositoryId": "' + repositoryId + '", ' +
+                        '"ProfileId": "' + profileId + '", ' +
+                        '"DataLanguageId": "' + dataLanguageId + '", ' +
+                        '"GuiLanguageId": "' + guiLanguageId + '"' +
+                        '}');
+                },
+                data: {
+                    FirstName: firstName,
+                    LastName: lastName
+                },
+                success: function (sanityCheckResponse) {
+                    document.getElementById("SanityCheck").innerText = sanityCheckResponse;
+                    document.getElementById("SanityCheckLoader").className = "";
+                },
+                error: function () {
+                    alert("Sorry could not proceed for SanityCheck");
+                    document.getElementById("SanityCheckLoader").className = "";
+                }
+            });
+        }
+        function AsyncSanityCheck() {
+            document.getElementById("AsyncSanityCheckLoader").className = "fa fa-spinner fa-spin";
+            var myServiceUrl = document.getElementById('myServiceUrl').value;
+            var uasToken = document.getElementById('UasToken').innerText;
+            var environmentId = document.getElementById('EnvironmentId').value;
+            var repositoryId = document.getElementById('RepositoryId').value;
+            var profileId = document.getElementById('ProfileId').value;
+            var dataLanguageId = document.getElementById('DataLanguageId').value;
+            var guiLanguageId = document.getElementById('GuiLanguageId').value;
+            var firstName = document.getElementById('FirstName').value;
+            var lastName = document.getElementById('LastName').value;
+            $.ajax({
+                url: myServiceUrl + "/api/test/async/sanitycheck",
+                type: "POST",
+                beforeSend: function (request) {
+                    request.setRequestHeader("Authorization", "Bearer " + uasToken);
+                    request.setRequestHeader("X-HopexContext",
+                        '{' +
+                        '"EnvironmentId": "' + environmentId + '", ' +
+                        '"RepositoryId": "' + repositoryId + '", ' +
+                        '"ProfileId": "' + profileId + '", ' +
+                        '"DataLanguageId": "' + dataLanguageId + '", ' +
+                        '"GuiLanguageId": "' + guiLanguageId + '"' +
+                        '}');
+                },
+                data: {
+                    FirstName: firstName,
+                    LastName: lastName
+                },
+                success: function (response, status, xhr) {
+                    document.getElementById("HopexSession").innerText = xhr.getResponseHeader("X-HopexSession");
+                    document.getElementById("ActionId").innerText = response;
+                    document.getElementById("AsyncSanityCheckLoader").className = "";
+                },
+                error: function () {
+                    alert("Sorry could not proceed for AsyncSanityCheck");
+                    document.getElementById("AsyncSanityCheckLoader").className = "";
+                }
+            });
+        }
+        function AsyncSanityCheckGetResult() {
+            document.getElementById("AsyncSanityCheckGetResultLoader").className = "fa fa-spinner fa-spin";
+            var myServiceUrl = document.getElementById('myServiceUrl').value;
+            var uasToken = document.getElementById('UasToken').innerText;
+            var hopexSession = document.getElementById('HopexSession').innerText;
+            var actionId = document.getElementById('ActionId').innerText;
+            $.ajax({
+                url: myServiceUrl + "/api/test/async/sanitycheck/result/" + actionId,
+                type: "GET",
+                beforeSend: function (request) {
+                    request.setRequestHeader("Authorization", "Bearer " + uasToken);
+                    request.setRequestHeader("X-HopexSession", hopexSession);
+                },
+                success: function (response) {
+                    document.getElementById("AsyncSanityCheck").innerText = response;
+                    document.getElementById("AsyncSanityCheckGetResultLoader").className = "";
+                },
+                error: function () {
+                    alert("Sorry could not proceed for AsyncSanityCheckGetResult");
+                    document.getElementById("AsyncSanityCheckGetResultLoader").className = "";
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h2>URL</h2>
+        <p>
+            <label for="UasUrl">UAS Url:</label>
+            <input id="UasUrl" type="text" placeholder="Type UAS url here" value="http://localhost/UAS" />
+        </p>
+        <p>
+            <label for="myServiceUrl">Web Service Url:</label>
+            <input id="myServiceUrl" type="text" placeholder="Type your web service url here" value="http://localhost:53041" />
+        </p>
+        <h2>Hopex session info</h2>
+        <p>
+            <label for="EnvironmentId">Environment Id:</label>
+            <input id="EnvironmentId" type="text" maxlength="12" placeholder="Type the environment id here (string64 format - 12 characters)" value="" />
+        </p>
+        <p>
+            <label for="RepositoryId">Repository Id:</label>
+            <input id="RepositoryId" type="text" maxlength="12" placeholder="Type the repository id here (string64 format - 12 characters)" value="" />
+        </p>
+        <p>
+            <label for="ProfileId">Profile Id:</label>
+            <input id="ProfileId" type="text" maxlength="12" placeholder="Type the profile id here (string64 format - 12 characters)" value="" />
+        </p>
+        <p>
+            <label for="DataLanguageId">Data Language Id:</label>
+            <input id="DataLanguageId" type="text" maxlength="12" placeholder="Type the data language id here (string64 format - 12 characters) - (OPTIONAL)" value="" />
+        </p>
+        <p>
+            <label for="GuiLanguageId">GUI Language Id:</label>
+            <input id="GuiLanguageId" type="text" maxlength="12" placeholder="Type the GUI language id here (string64 format - 12 characters) - (OPTIONAL)" value="" />
+        </p>
+        <p>
+            <label for="Login">Login:</label>
+            <input id="Login" type="text" placeholder="Type your Hopex login here" value="" />
+        </p>
+        <p>
+            <label for="Password">Password:</label>
+            <input id="Password" type="password" placeholder="Type your Hopex password here" value="" />
+        </p>
+        <p>
+            <button type="button" onclick="GetUasToken();">
+                <i id="GetUasTokenLoader"></i> Get UAS token
+            </button>
+        </p>
+        <div id="UasToken">&nbsp;</div>
+        <h2>Web service data</h2>
+        <p>
+            <label for="FirstName">First name:</label>
+            <input id="FirstName" type="text" placeholder="Type your first name here" value="" />
+        </p>
+        <p>
+            <label for="LastName">Last name:</label>
+            <input id="LastName" type="text" placeholder="Type your last name here" value="" />
+        </p>
+        <h2>SanityCheck</h2>
+        <p>
+            <button type="button" onclick="SanityCheck();">
+                <i id="SanityCheckLoader" class=""></i> Sanity check
+            </button>
+        </p>
+        <div id="SanityCheck">&nbsp;</div>
+        <h2>AsyncSanityCheck</h2>
+        <p>
+            <button type="button" onclick="AsyncSanityCheck();">
+                <i id="AsyncSanityCheckLoader" class=""></i> Start action
+            </button>
+        </p>
+        <div id="HopexSession">&nbsp;</div>
+        <div id="ActionId">&nbsp;</div>
+        <h2>AsyncSanityCheckGetResult</h2>
+        <p>
+            <button type="button" onclick="AsyncSanityCheckGetResult();">
+                <i id="AsyncSanityCheckGetResultLoader" class=""></i> Get action result
+            </button>
+        </p>
+        <div id="AsyncSanityCheck">&nbsp;</div>
+    </div>
+</body>
+</html>
