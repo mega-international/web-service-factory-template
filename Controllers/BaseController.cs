@@ -38,7 +38,7 @@ namespace Mega.WebServiceTemplate1.Controllers
             // Find the Hopex session
             var sspUrl = ConfigurationManager.AppSettings["MegaSiteProvider"];
             var securityKey = ((NameValueCollection)WebConfigurationManager.GetSection("secureAppSettings"))["SecurityKey"];
-            var mwasUrl = HopexService.FindSession(sspUrl, securityKey, hopexContext.EnvironmentId, hopexContext.DataLanguageId, hopexContext.GuiLanguageId, hopexContext.ProfileId, userInfo.HopexAuthPerson);
+            var mwasUrl = HopexService.FindSession(sspUrl, securityKey, hopexContext.EnvironmentId, hopexContext.DataLanguageId, hopexContext.GuiLanguageId, hopexContext.ProfileId, userInfo.HopexAuthPerson, true);
             if (mwasUrl == null)
             {
                 const string message = "Unable to get MWAS url. Please retry later and check your configuration if it doesn't work.";
@@ -81,7 +81,7 @@ namespace Mega.WebServiceTemplate1.Controllers
             HopexContext hopexContext;
             if (!Request.Headers.TryGetValues("X-HopexContext", out hopexContextHeader) || !HopexServiceHelper.TryGetHopexContext(hopexContextHeader.FirstOrDefault(), out hopexContext))
             {
-                const string message = "Parameter \"X-HopexContext\" must be set in the header of your request. Example: HopexContext:{\"EnvironmentId\":\"IdAbs\",\"RepositoryId\":\"IdAbs\",\"ProfileId\":\"IdAbs\",\"DataLanguageId\":\"IdAbs\",,\"GuiLanguageId\":\"IdAbs\"}";
+                const string message = "Parameter \"X-Hopex-Context\" must be set in the header of your request. Example: HopexContext:{\"EnvironmentId\":\"IdAbs\",\"RepositoryId\":\"IdAbs\",\"ProfileId\":\"IdAbs\",\"DataLanguageId\":\"IdAbs\",,\"GuiLanguageId\":\"IdAbs\"}";
                 Logger.Debug(message);
                 return BadRequest(message);
             }
@@ -89,7 +89,7 @@ namespace Mega.WebServiceTemplate1.Controllers
             // Find the Hopex session
             var sspUrl = ConfigurationManager.AppSettings["MegaSiteProvider"];
             var securityKey = ((NameValueCollection)WebConfigurationManager.GetSection("secureAppSettings"))["SecurityKey"];
-            var mwasUrl = HopexService.FindSession(sspUrl, securityKey, hopexContext.EnvironmentId, hopexContext.DataLanguageId, hopexContext.GuiLanguageId, hopexContext.ProfileId, userInfo.HopexAuthPerson);
+            var mwasUrl = HopexService.FindSession(sspUrl, securityKey, hopexContext.EnvironmentId, hopexContext.DataLanguageId, hopexContext.GuiLanguageId, hopexContext.ProfileId, userInfo.HopexAuthPerson, true);
             if (mwasUrl == null)
             {
                 const string message = "Unable to get MWAS url. Please retry later and check your configuration if it doesn't work.";
